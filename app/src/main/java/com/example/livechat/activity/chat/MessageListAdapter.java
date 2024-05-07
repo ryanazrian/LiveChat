@@ -46,8 +46,6 @@ public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         RecyclerView.ViewHolder viewHolder = null;
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
-        Log.d("VIEWTYPE", String.valueOf(viewType));
-
         switch (viewType){
             case VIEW_TYPE_MESSAGE_SENT:
                 View viewItem = inflater.inflate(R.layout.item_message_sent, parent, false);

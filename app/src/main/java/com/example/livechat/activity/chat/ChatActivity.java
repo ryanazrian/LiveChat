@@ -79,7 +79,7 @@ public class ChatActivity extends AppCompatActivity {
             String message = msg.getText().toString();
             if(!TextUtils.isEmpty(message)){
                 chatController.postMessage(message);
-                
+
                 msg.getText().clear();
             }
         }

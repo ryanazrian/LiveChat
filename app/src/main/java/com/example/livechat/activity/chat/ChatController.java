@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.livechat.R;
 import com.example.livechat.model.MessageModel;
 import com.example.livechat.model.UserModel;
+import com.example.livechat.services.DatabaseHandler;
 import com.example.livechat.services.SessionManagement;
 
 import org.json.JSONException;
@@ -14,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,17 +36,22 @@ public class ChatController {
     private SimpleDateFormat sdf;
 
     private MessageListAdapter messageListAdapter;
+    private DatabaseHandler databaseHandler;
 
     protected ChatController(ChatActivity chatActivity, MessageListAdapter messageListAdapter, ArrayList<MessageModel> messageList) {
         this.chatActivity = chatActivity;
         this.messageListAdapter = messageListAdapter;
         this.messageList = messageList;
 
+
         sessionManagement = new SessionManagement(chatActivity);
         sdf = new SimpleDateFormat("HH:mm");
+        databaseHandler = new DatabaseHandler(chatActivity);
 
         getSessionData();
         createWebSocketClient();
+        getMessageList();
+//        Log.d("messageList", this.messageList.toString());
     }
 
     protected void getSessionData() {
@@ -68,6 +75,11 @@ public class ChatController {
         });
     }
 
+    protected void getMessageList() {
+        messageList.addAll(databaseHandler.getAllMessages());
+        messageListAdapter.notifyDataSetChanged();
+    }
+
     protected void createMessageAdapter(StompMessage msg) throws JSONException {
 
         chatActivity.runOnUiThread(new Runnable() {
@@ -85,6 +97,8 @@ public class ChatController {
                     messageModel.setMsg(messageObject.getString("message"));
                     messageModel.setDate(sdf.format(new Date()));
                     messageModel.setSender(userModel);
+
+                    databaseHandler.addRecord(messageModel);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -116,6 +130,7 @@ public class ChatController {
         }
 
         mStompClient.send("/app/chat", messageObject.toString()).subscribe();
+        databaseHandler.addRecord(messageModel);
     }
 
 
