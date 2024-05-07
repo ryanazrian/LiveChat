@@ -1,11 +1,16 @@
 package com.example.livechat.activity.login;
 
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
+import com.example.livechat.R;
 import com.example.livechat.model.UserModel;
+import com.example.livechat.services.IResult;
 import com.example.livechat.services.SessionManagement;
+import com.example.livechat.services.VolleyService;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -17,18 +22,28 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginController {
     private LoginActivity loginActivity;
     private UserModel userModel;
     private SessionManagement sessionManagement;
     private FirebaseAuth auth;
+    private VolleyService mVolleyService;
 
     private int RC_SIGN_IN = 1009;
     private String id;
     private String token;
     private String name;
     private String email;
+    private IResult mResultCallback = null;
+
 
 
     protected LoginController(LoginActivity loginActivity){
@@ -40,16 +55,21 @@ public class LoginController {
         userModel = new UserModel();
 
         //session
+        initVolleyCallback();
         sessionManagement = new SessionManagement(loginActivity);
+        mVolleyService = new VolleyService(mResultCallback, loginActivity);
     }
 
     protected void login(String email, String password){
-        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                loginActivity.onFirebaseLogin(task);
-            }
-        });
+
+        Map<String, String> param = new HashMap<>();
+        param.put("username", email);
+        param.put("password", password);
+
+        String URI = loginActivity.getString(R.string.main_uri) + "/auth/signin";
+
+        mVolleyService.postDataVolley("LOGIN", URI, param);
+
     }
 
     protected void googleLogin(){
@@ -89,6 +109,47 @@ public class LoginController {
 //            utility.showProgress(loginActivity.mProgressView, loginActivity, false);
             Toast.makeText(loginActivity, "No Internet Connection", Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void handleSignInEmailUsername(JSONObject response) throws JSONException {
+        id = response.getString("id");
+        token = "Bearer " + response.getString("accessToken");
+        name = response.getString("username");
+        email = response.getString("email");
+
+        userModel.setID(id);
+        userModel.setToken(token);
+        userModel.setName(name);
+        userModel.setEmail(email);
+
+        sessionManagement.createLoginSession(userModel);
+        loginActivity.onSucceedGoogleLogin();
+    }
+
+    //result API handling
+    private void initVolleyCallback(){
+        mResultCallback = new IResult() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void notifySuccess(String requestType, JSONObject response) throws JSONException {
+                switch (requestType){
+                    //posting data result handling
+                    case "LOGIN":
+                        handleSignInEmailUsername(response);
+                        Log.w("Login Response", response.toString());
+
+                }
+
+            }
+
+            //error handling
+            @Override
+            public void notifyError(String requestType, VolleyError error) {
+                System.out.println("ERROR");
+
+                Log.d("ERRor", error.networkResponse.toString());
+            }
+        };
     }
 
 

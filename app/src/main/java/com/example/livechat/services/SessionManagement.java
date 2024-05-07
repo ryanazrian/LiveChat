@@ -48,6 +48,14 @@ public class SessionManagement {
         editor.commit();
     }
 
+    public String getSessionToken() {
+        return pref.getString(KEY_TOKEN, null);
+    }
+
+    public String getUsername() {
+        return pref.getString(KEY_NAME, null);
+    }
+
     public void checkLogin(){
         // Check login status
         if(this.isLoggedIn()){

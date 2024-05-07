@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -96,8 +97,25 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadingProgressBar.setVisibility(View.VISIBLE);
-                loginController.login(usernameEditText.getText().toString(), passwordEditText.getText().toString());
+
+//                String email = usernameEditText.getText().toString();
+//                String password = passwordEditText.getText().toString();
+
+                String email = "ryanazrian";
+                String password = "qwerty123";
+
+                try {
+                    if(email.matches("")|| password.matches("")){
+                        throw new Exception("Fill the form!");
+                    } else {
+                        loadingProgressBar.setVisibility(View.VISIBLE);
+                        loginController.login(email, password);
+                    }
+                }
+                catch (Exception e) {
+                    Log.w("Login Err", e.getMessage());
+                }
+
             }
         });
 
