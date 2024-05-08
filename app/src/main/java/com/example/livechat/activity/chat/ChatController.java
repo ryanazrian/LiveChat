@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +72,7 @@ public class ChatController {
 
             mStompClient.connect();
 
-            mStompClient.topic("/topic/messages").subscribe(topicMessage -> {
+            mStompClient.topic("/topic2/1").subscribe(topicMessage -> {
                 createMessageAdapter(topicMessage);
             }, throwable -> {
                 Log.d("ERORR", "Error in subscribe to WS");
@@ -83,7 +84,8 @@ public class ChatController {
     }
 
     protected void getMessageList() {
-        messageList.addAll(databaseHandler.getAllMessages());
+        messageList.addAll((databaseHandler.getAllMessages()));
+        Collections.reverse(messageList);
         messageListAdapter.notifyDataSetChanged();
     }
 
@@ -111,7 +113,7 @@ public class ChatController {
                 }
 
 
-                messageList.add(messageModel);
+                messageList.add(0, messageModel);
                 messageListAdapter.notifyDataSetChanged();
             }
         });
@@ -136,7 +138,7 @@ public class ChatController {
             e.printStackTrace();
         }
 
-        mStompClient.send("/app/chat", messageObject.toString()).subscribe();
+        mStompClient.send("/app/topic2/1", messageObject.toString()).subscribe();
         databaseHandler.addRecord(messageModel);
     }
 

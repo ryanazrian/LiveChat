@@ -70,8 +70,14 @@ public class ChatActivity extends AppCompatActivity {
         RC.setHasFixedSize(true);
         RC.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         RC.setAdapter(messageListAdapter);
+//        RC.scrollToPosition(messageList.size() - 1);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setReverseLayout(true);
+        RC.setLayoutManager(layoutManager);
 
     }
+
 
     Button.OnClickListener sendButton = new Button.OnClickListener() {
         @Override
@@ -81,6 +87,7 @@ public class ChatActivity extends AppCompatActivity {
                 chatController.postMessage(message);
 
                 msg.getText().clear();
+//                RC.scrollToPosition(messageList.size() - 1);
             }
         }
     };
