@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 
 import com.example.livechat.activity.MainActivity;
 import com.example.livechat.activity.chat.ChatActivity;
+import com.example.livechat.activity.login.LoginActivity;
 import com.example.livechat.model.UserModel;
 
 public class SessionManagement {
@@ -78,5 +79,23 @@ public class SessionManagement {
     // Get Login State
     public boolean isLoggedIn(){
         return pref.getBoolean(IS_LOGIN, false);
+    }
+
+    public void logoutUser(){
+        // Clearing all data from Shared Preferences
+        editor.clear();
+        editor.commit();
+
+        // user is not logged in redirect him to Login Activity
+        Intent i = new Intent(_context, LoginActivity.class);
+        // Closing all the Activities
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        // Add new Flag to start new Activity
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        // Staring Login Activity
+        _context.startActivity(i);
+
     }
 }

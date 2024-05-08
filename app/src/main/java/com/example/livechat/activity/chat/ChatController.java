@@ -62,17 +62,24 @@ public class ChatController {
     }
 
     protected void createWebSocketClient() {
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put("authorization", token);
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, chatActivity.getString(R.string.ws_uri), headers);
-
-        mStompClient.connect();
-
         // Receive greetings
-        mStompClient.topic("/topic/messages").subscribe(topicMessage -> {
-            createMessageAdapter(topicMessage);
-        });
+
+        try {
+            Map<String, String> headers = new HashMap<>();
+            headers.put("authorization", token);
+            mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, chatActivity.getString(R.string.ws_uri), headers);
+
+            mStompClient.connect();
+
+            mStompClient.topic("/topic/messages").subscribe(topicMessage -> {
+                createMessageAdapter(topicMessage);
+            }, throwable -> {
+                Log.d("ERORR", "Error in subscribe to WS");
+                sessionManagement.logoutUser();
+            });
+        } catch (Exception e) {
+            Log.d("ERORR", "Error in connecting to WS");
+        }
     }
 
     protected void getMessageList() {
