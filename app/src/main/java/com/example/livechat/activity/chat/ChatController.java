@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -139,7 +138,7 @@ public class ChatController {
         }
 
         mStompClient.send("/app/topic2/1", messageObject.toString()).subscribe();
-        databaseHandler.addRecord(messageModel);
+//        databaseHandler.addRecord(messageModel);
     }
 
 

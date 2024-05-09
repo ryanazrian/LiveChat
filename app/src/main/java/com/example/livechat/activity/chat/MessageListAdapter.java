@@ -107,6 +107,6 @@ public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public int getItemCount() {
-        return messageList.size();
+            return messageList.size();
     }
 }
