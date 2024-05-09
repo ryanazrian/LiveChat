@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.example.livechat.R;
 import com.example.livechat.activity.MainActivity;
 import com.example.livechat.activity.chat.ChatActivity;
+import com.example.livechat.activity.users.UsersActivity;
 import com.example.livechat.model.UserModel;
 import com.example.livechat.services.SessionManagement;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -143,7 +144,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     protected void onSucceedGoogleLogin(){
-        Intent intent = new Intent(LoginActivity.this, ChatActivity.class);
+        Intent intent = new Intent(LoginActivity.this, UsersActivity.class);
         startActivity(intent);
         finish();
     }

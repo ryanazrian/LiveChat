@@ -61,10 +61,12 @@ public class ChatActivity extends AppCompatActivity {
 
         sendBtn.setOnClickListener(sendButton);
 
+        UserModel chatTarget = getExtras();
+
         sessionManagement = new SessionManagement(this);
         username = sessionManagement.getUsername();
         messageListAdapter = new MessageListAdapter(this, messageList, username);
-        chatController = new ChatController(this, messageListAdapter, messageList);
+        chatController = new ChatController(this, messageListAdapter, messageList, chatTarget);
 
 
         RC.setHasFixedSize(true);
@@ -76,6 +78,13 @@ public class ChatActivity extends AppCompatActivity {
         layoutManager.setReverseLayout(true);
         RC.setLayoutManager(layoutManager);
 
+    }
+
+    private UserModel getExtras() {
+        Bundle bundle = getIntent().getExtras();
+        UserModel userPassedModel = bundle.getParcelable("userModel");
+
+        return  userPassedModel;
     }
 
 

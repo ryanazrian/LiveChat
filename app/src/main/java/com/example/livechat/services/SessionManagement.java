@@ -58,6 +58,10 @@ public class SessionManagement {
         return pref.getString(KEY_NAME, null);
     }
 
+    public String getID() {
+        return pref.getString(KEY_ID, null);
+    }
+
     public void checkLogin(){
         // Check login status
         if(this.isLoggedIn()){

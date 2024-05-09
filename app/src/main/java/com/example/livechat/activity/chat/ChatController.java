@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,25 +29,31 @@ public class ChatController {
     private SessionManagement sessionManagement;
     private MessageModel messageModel;
     private UserModel userModel;
+    private UserModel chatTarget;
     private StompClient mStompClient;
 
     private String token;
     private String username;
+    private String id;
+    private String roomID;
     private ArrayList<MessageModel> messageList;
     private SimpleDateFormat sdf;
 
     private MessageListAdapter messageListAdapter;
     private DatabaseHandler databaseHandler;
 
-    protected ChatController(ChatActivity chatActivity, MessageListAdapter messageListAdapter, ArrayList<MessageModel> messageList) {
+    protected ChatController(ChatActivity chatActivity, MessageListAdapter messageListAdapter, ArrayList<MessageModel> messageList, UserModel chatTarget) {
         this.chatActivity = chatActivity;
         this.messageListAdapter = messageListAdapter;
         this.messageList = messageList;
+        this.chatTarget = chatTarget;
 
 
         sessionManagement = new SessionManagement(chatActivity);
         sdf = new SimpleDateFormat("HH:mm");
         databaseHandler = new DatabaseHandler(chatActivity);
+
+        roomID = createRoomID();
 
         getSessionData();
         createWebSocketClient();
@@ -57,13 +64,23 @@ public class ChatController {
     protected void getSessionData() {
         token = sessionManagement.getSessionToken();
         username = sessionManagement.getUsername();
+        id = sessionManagement.getID();
+
 
         Log.d("Session Token", token);
     }
 
-    protected void createWebSocketClient() {
-        // Receive greetings
+    private String createRoomID() {
+        String unsortedID = username + id + chatTarget.getName() + chatTarget.getID();
 
+        char[] chars = unsortedID.toCharArray();
+        Arrays.sort(chars);
+        String sortedID = new String(chars);
+
+        return sortedID;
+    }
+
+    protected void createWebSocketClient() {
         try {
             Map<String, String> headers = new HashMap<>();
             headers.put("authorization", token);
@@ -71,7 +88,7 @@ public class ChatController {
 
             mStompClient.connect();
 
-            mStompClient.topic("/topic2/1").subscribe(topicMessage -> {
+            mStompClient.topic("/topic2/" + roomID).subscribe(topicMessage -> {
                 createMessageAdapter(topicMessage);
             }, throwable -> {
                 Log.d("ERORR", "Error in subscribe to WS");
@@ -83,7 +100,7 @@ public class ChatController {
     }
 
     protected void getMessageList() {
-        messageList.addAll((databaseHandler.getAllMessages()));
+        messageList.addAll((databaseHandler.getMessagesByRoomId(roomID)));
         Collections.reverse(messageList);
         messageListAdapter.notifyDataSetChanged();
     }
@@ -105,6 +122,7 @@ public class ChatController {
                     messageModel.setMsg(messageObject.getString("message"));
                     messageModel.setDate(sdf.format(new Date()));
                     messageModel.setSender(userModel);
+                    messageModel.setRoomID(roomID);
 
                     databaseHandler.addRecord(messageModel);
                 } catch (JSONException e) {
@@ -128,6 +146,7 @@ public class ChatController {
         messageModel.setMsg(message);
         messageModel.setDate(sdf.format(new Date()));
         messageModel.setSender(userModel);
+        messageModel.setRoomID(roomID);
 
         JSONObject messageObject = new JSONObject();
         try {
@@ -137,7 +156,7 @@ public class ChatController {
             e.printStackTrace();
         }
 
-        mStompClient.send("/app/topic2/1", messageObject.toString()).subscribe();
+        mStompClient.send("/app/topic2/" + roomID, messageObject.toString()).subscribe();
 //        databaseHandler.addRecord(messageModel);
     }
 

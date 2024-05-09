@@ -7,6 +7,7 @@ public class MessageModel implements Parcelable {
     private String Id;
     private String Msg;
     private String Date;
+    private String RoomID;
     private UserModel sender;
 
     public MessageModel(){
@@ -48,10 +49,19 @@ public class MessageModel implements Parcelable {
         this.sender = sender;
     }
 
+    public String getRoomID() {
+        return RoomID;
+    }
+
+    public void setRoomID(String roomID) {
+        RoomID = roomID;
+    }
+
     protected MessageModel(Parcel in) {
         Id = in.readString();
         Msg = in.readString();
         Date = in.readString();
+        RoomID = in.readString();
         sender = in.readParcelable(UserModel.class.getClassLoader());
     }
 
@@ -77,6 +87,7 @@ public class MessageModel implements Parcelable {
         dest.writeString(Id);
         dest.writeString(Msg);
         dest.writeString(Date);
+        dest.writeString(RoomID);
         dest.writeParcelable(sender, flags);
     }
 }

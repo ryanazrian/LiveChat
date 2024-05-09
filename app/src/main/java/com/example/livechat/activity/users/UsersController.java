@@ -98,6 +98,9 @@ public class UsersController {
             //error handling
             @Override
             public void notifyError(String requestType, VolleyError error) {
+                if(error.networkResponse.statusCode == 401) {
+                    sessionManagement.logoutUser();
+                }
                 System.out.println(error);
             }
         };
