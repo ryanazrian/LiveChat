@@ -5,14 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.example.livechat.model.MessageModel;
 import com.example.livechat.model.UserModel;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
     // static variable
